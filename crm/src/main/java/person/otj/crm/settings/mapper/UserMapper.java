@@ -1,7 +1,9 @@
 package person.otj.crm.settings.mapper;
 
+import org.mybatis.spring.annotation.MapperScan;
 import person.otj.crm.settings.model.User;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserMapper {
@@ -58,5 +60,6 @@ public interface UserMapper {
     * */
     User selectUserByLoginActAndPwd(Map<String ,Object>map);
 
+    List<User> findAll();
 
 }
