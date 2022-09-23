@@ -32,4 +32,10 @@ public class TestController {
         session.setAttribute("role",user);
         return "11";
     }
+
+    @RequestMapping("/test01")
+    public String test01(){
+
+        return "test01";
+    }
 }

@@ -1,27 +1,121 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
-String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/";
+	String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/";
 %>
 <html>
 <head>
 	<base href="<%=basePath%>">
 <meta charset="UTF-8">
-
-<link href="jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-<link href="jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" />
-
-<script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
-<script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
-<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
-
+	<%--引入jQuery--%>
+	<script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
+	<%--引入bootstrap框架--%>
+	<link rel="stylesheet" href="jquery/bootstrap_3.3.0/css/bootstrap.min.css"/>
+	<script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+	<%--引入BOOTSTRAP_DATATIMEPICKER插件--%>
+	<link rel="stylesheet" href="jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css"/>
+	<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
+	<script type="text/javascript"
+			src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 <script type="text/javascript">
 
 	$(function(){
-		
-		
-		
+		//打开创建activity模态窗口
+		$("#createActivityBtn").click(function () {
+		//点击后初始化操作
+				//清空插入数据form表单
+			$("#createActivityForm").get(0).reset();
+
+				//显示插入数据的模态窗口
+			$("#createActivityModal").modal("show");
+			$(".mydate").datetimepicker({
+				language:'zh-CN',//中文格式
+				format:'yyyy-mm-dd',//日期格式
+				minView:'month',//可以选择的最小视图
+				autoclose:true,
+				initialDate:new Date(),
+				todayBtn:true
+			})
+
+		});
+		//保存创建activity并且关闭模态窗口
+		$("#saveCreateActivityBtn").click(function () {
+			//点击后初始化操作->收集参数
+			var owner=$("#create-marketActivityOwner").val();
+			var name=$.trim($("#create-marketActivityName").val());
+			var startTime=$("#create-startTime").val();
+			var endTime=$.trim($("#create-endTime").val());
+			var describe=$.trim($("#create-describe").val());
+			var cost=$.trim($("#create-cost").val());
+			//表单验证
+			if(owner==""){
+				alert("所有者不能为空")
+				return ;
+			}
+			if(name==""){
+				alert("名字不能为空")
+				return ;
+			}
+			if(startTime!=""&&endTime!=""){
+				if(startTime>endTime){
+					alert("开始日期不能大于结束日期")
+					return;
+				}
+			}else{
+				alert("日期不能为空")
+				return;
+			}
+			//js表单验证使用到正则表达式匹配
+			/*
+			* (1)//定义为正则表达式
+			** (2)^匹配字符串开头位置
+			* * (3)$匹配字符串结尾位置
+			* (4)[]匹配字符集中的一个字符
+			* (5){m}匹配次数 m次
+			* (6){m,n}匹配次数 m~n之间的一个次数
+			* (7){m,}匹配次数 m到无限次之间的一个次数
+			* (8)\d	匹配一个数字 相当于[0-9]
+			* (9)\D	匹配一个非数字
+			* (10)\w 匹配所有字符,包括字母，数字，下划线
+			* (11)* 匹配0次或多次 相当于{0,}
+			* (12)+	匹配1次或多次 相当于{1,}
+			* (13)? 匹配1次或0次 相当于{0,1}
+			* */
+			var regExp=/^(([1-9]\d*)|0)$/;
+			if(!regExp.test(cost)){
+				alert("成本只能为非负整数")
+				return;
+			}
+			$.ajax({
+				url:"workbench/activity/savecreateActivity.do",
+				data:{
+					owner:owner,
+					name:name,
+					startTime:startTime,
+					endTime:endTime,
+					describe:describe,
+					cost:cost
+				},
+				type:"post",
+				dataType:"json",
+				success:function (data) {
+					if(data.code=="1"){
+						//关闭创建模态窗口
+						$("#createActivityModal").modal("hide");
+					}else{
+						alert(data.message)
+						$("#createActivityModal").modal("show");
+					}
+				}
+			})
+
+
+
+
+		});
+
+
+
 	});
 	
 </script>
@@ -40,7 +134,7 @@ String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.ge
 				</div>
 				<div class="modal-body">
 				
-					<form class="form-horizontal" role="form">
+					<form id="createActivityForm" class="form-horizontal" role="form">
 					
 						<div class="form-group">
 							<label for="create-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
@@ -60,11 +154,11 @@ String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.ge
 						<div class="form-group">
 							<label for="create-startTime" class="col-sm-2 control-label">开始日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="create-startTime">
+								<input type="text" class="form-control mydate" id="create-startTime" readonly>
 							</div>
 							<label for="create-endTime" class="col-sm-2 control-label">结束日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="create-endTime">
+								<input type="text" class="form-control mydate" id="create-endTime" readonly>
 							</div>
 						</div>
                         <div class="form-group">
@@ -86,7 +180,7 @@ String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.ge
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">保存</button>
+					<button type="button" class="btn btn-primary" id="saveCreateActivityBtn">保存</button>
 				</div>
 			</div>
 		</div>
@@ -124,11 +218,11 @@ String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.ge
 						<div class="form-group">
 							<label for="edit-startTime" class="col-sm-2 control-label">开始日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="edit-startTime" value="2020-10-10">
+								<input type="text" class="form-control mydate" id="edit-startTime" value="2020-10-10" readonly>
 							</div>
 							<label for="edit-endTime" class="col-sm-2 control-label">结束日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="edit-endTime" value="2020-10-20">
+								<input type="text" class="form-control mydate" id="edit-endTime" value="2020-10-20" readonly>
 							</div>
 						</div>
 						
@@ -243,7 +337,7 @@ String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.ge
 			</div>
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 5px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
-				  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createActivityModal"><span class="glyphicon glyphicon-plus"></span> 创建</button>
+				  <button type="button" class="btn btn-primary" id="createActivityBtn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
 				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
