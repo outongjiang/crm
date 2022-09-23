@@ -26,6 +26,7 @@ http://www.springframework.org/schema/util/spring-util.xsd">
     <context:component-scan base-package="person.otj.crm.web.controller"/>
     <context:component-scan base-package="person.otj.crm.settings.web.controller"/>
     <context:component-scan base-package="person.otj.crm.workbench.web.controller"/>
+    <context:component-scan base-package="test.controller"/>
 
     <!-- 配置注解驱动 -->
     <mvc:annotation-driven/>
@@ -40,4 +41,15 @@ http://www.springframework.org/schema/util/spring-util.xsd">
         <property name="maxUploadSize" value="#{1024*1024*80}"/>
         <property name="defaultEncoding" value="utf-8"/>
     </bean>-->
+
+    <mvc:interceptors>
+        <mvc:interceptor >
+            <mvc:mapping path="/settings/**"/>
+            <mvc:mapping path="/workbench/**"/>
+            <mvc:exclude-mapping path="/settings/qx/user/toLogin.do"/>
+            <mvc:exclude-mapping path="/settings/qx/user/login.do"/>
+            <bean class="person.otj.crm.settings.web.interceptor.LoginInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
 </beans>
+

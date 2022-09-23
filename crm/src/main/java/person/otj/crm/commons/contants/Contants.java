@@ -5,7 +5,7 @@ public class Contants {
     public static final String RETURN_OBJECT_CODE_SUCCESS="1";
     public static final String RETURN_OBJECT_CODE_FILE="0";
     public static final String SESSION_USER="sessionUser";
-
+    public static final int COOKIE_MAXAGE=3600*24*10;
 
 }
 
