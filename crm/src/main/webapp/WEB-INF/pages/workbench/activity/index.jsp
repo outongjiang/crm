@@ -17,7 +17,13 @@
 	<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 	<script type="text/javascript"
 			src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
-<script type="text/javascript">
+	<%--引入BOOTSTRAP_DATATIMEPICKER插件--%>
+	<link rel="stylesheet" type="text/css" href="jquery/bs_pagination-master/css/jquery.bs_pagination.min.css">
+	<script type="text/javascript" src="jquery/bs_pagination-master/js/jquery.bs_pagination.min.js"></script>
+	<script type="text/javascript" src="jquery/bs_pagination-master/localization/en.min.js"></script>
+
+
+	<script type="text/javascript">
 
 	$(function(){
 		//打开创建activity模态窗口
@@ -91,9 +97,9 @@
 				data:{
 					owner:owner,
 					name:name,
-					startTime:startTime,
-					endTime:endTime,
-					describe:describe,
+					startDate:startTime,
+					endDate:endTime,
+					description:describe,
 					cost:cost
 				},
 				type:"post",
@@ -102,6 +108,8 @@
 					if(data.code=="1"){
 						//关闭创建模态窗口
 						$("#createActivityModal").modal("hide");
+						// 创建市场活动后自动刷新bs_pagination
+						queryActivityByConditionForPage(1,$("#bs_paging1").bs_pagination('getOption','rowsPerPage'));
 					}else{
 						alert(data.message)
 						$("#createActivityModal").modal("show");
@@ -113,11 +121,78 @@
 
 
 		});
+		//当市场活动页面加载完毕时，查询记录
+		queryActivityByConditionForPage(1,5);
+		$("#selectBtn").click(function(){
 
+			queryActivityByConditionForPage(1,$("#bs_paging1").bs_pagination('getOption', 'rowsPerPage'));
+
+			//$("#bs_paging1").bs_pagination('getOption', 'rowsPerPage')
+		});
 
 
 	});
-	
+
+	function queryActivityByConditionForPage(pageNo,pageSize){
+
+
+		var name=$("#condition_name").val();
+		var condition_owner=$("#condition_owner").val();
+		var condition_startDate=$("#condition_startDate").val();
+		var condition_endDate=$("#condition_endDate").val();
+		$.ajax({
+			url:"workbench/activity/querycActivityByConditionForPage.do",
+			data:{
+				param_name:name,
+				param_owner:condition_owner,
+				param_start_date:condition_startDate,
+				param_end_date:condition_endDate,
+				beginNo:pageNo,
+				pageSize:pageSize
+			},
+			dataType:"json",
+			type:"post",
+			success:function (data) {
+				var totalPages=0;
+				if(data.totalRows%pageSize==0){
+					totalPages=data.totalRows/pageSize;
+				}else{
+					totalPages=parseInt(data.totalRows/pageSize)+1;
+				}
+				$("#bs_paging1").bs_pagination({
+					currentPage:pageNo,
+					rowsPerPage:pageSize,
+					totalRows:data.totalRows,
+					visiblePageLinks: 3,
+					totalPages:totalPages,
+					showGoToPage:true,
+				showRowsPerPage:true,
+				showRowsInfo:true,
+					onChangePage:function(event,pageObj){
+						queryActivityByConditionForPage(pageObj.currentPage,pageObj.rowsPerPage);
+					}
+			});
+				var htmlStr="";
+				$.each(data.activityList,function (index,obj) {
+					htmlStr+="<tr class='active'>"+
+							"<td><input type='checkbox' value=\""+obj.id+"\"/></td>"+
+							"<td><a style='text-decoration: none; cursor: pointer;'"+
+							"onclick=\"window.location.href=\"detail.html\";\">"+obj.name+"</a></td>"+
+							"<td>"+obj.owner+"</td>"+
+							"<td>"+obj.startDate+"</td>"+
+							"<td>"+obj.endDate+"</td>"+
+							"</tr>"
+				});
+				$("#tBody").html(htmlStr);
+
+			}
+		})
+
+	}
+
+
+
+
 </script>
 </head>
 <body>
@@ -152,15 +227,15 @@
 						</div>
 						
 						<div class="form-group">
-							<label for="create-startTime" class="col-sm-2 control-label">开始日期</label>
-							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control mydate" id="create-startTime" readonly>
-							</div>
-							<label for="create-endTime" class="col-sm-2 control-label">结束日期</label>
-							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control mydate" id="create-endTime" readonly>
-							</div>
+						<label for="create-startTime" class="col-sm-2 control-label">开始日期</label>
+						<div class="col-sm-10" style="width: 300px;">
+							<input type="text" class="form-control mydate" id="create-startTime" readonly>
 						</div>
+						<label for="create-endTime" class="col-sm-2 control-label">结束日期</label>
+						<div class="col-sm-10" style="width: 300px;">
+							<input type="text" class="form-control mydate" id="create-endTime" readonly>
+						</div>
+					</div>
                         <div class="form-group">
 
                             <label for="create-cost" class="col-sm-2 control-label">成本</label>
@@ -306,14 +381,14 @@
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">名称</div>
-				      <input class="form-control" type="text">
+				      <input id="condition_name" class="form-control" type="text">
 				    </div>
 				  </div>
 				  
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">所有者</div>
-				      <input class="form-control" type="text">
+				      <input id="condition_owner" class="form-control" type="text">
 				    </div>
 				  </div>
 
@@ -321,17 +396,17 @@
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">开始日期</div>
-					  <input class="form-control" type="text" id="startTime" />
+					  <input id="condition_startDate" class="form-control" type="text"  />
 				    </div>
 				  </div>
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">结束日期</div>
-					  <input class="form-control" type="text" id="endTime">
+					  <input id="condition_endDate" class="form-control" type="text">
 				    </div>
 				  </div>
 				  
-				  <button type="submit" class="btn btn-default">查询</button>
+				  <button type="button" id="selectBtn" class="btn btn-default">查询</button>
 				  
 				</form>
 			</div>
@@ -358,62 +433,29 @@
 							<td>结束日期</td>
 						</tr>
 					</thead>
-					<tbody>
-						<tr class="active">
-							<td><input type="checkbox" /></td>
-							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>
-                            <td>zhangsan</td>
-							<td>2020-10-10</td>
-							<td>2020-10-20</td>
-						</tr>
-                        <tr class="active">
-                            <td><input type="checkbox" /></td>
-                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>
-                            <td>zhangsan</td>
-                            <td>2020-10-10</td>
-                            <td>2020-10-20</td>
-                        </tr>
+					<tbody id="tBody">
+<%--						<tr class="active">--%>
+<%--							<td><input type="checkbox" /></td>--%>
+<%--							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>--%>
+<%--                            <td>zhangsan</td>--%>
+<%--							<td>2020-10-10</td>--%>
+<%--							<td>2020-10-20</td>--%>
+<%--						</tr>--%>
+<%--                        <tr class="active">--%>
+<%--                            <td><input type="checkbox" /></td>--%>
+<%--                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>--%>
+<%--                            <td>zhangsan</td>--%>
+<%--                            <td>2020-10-10</td>--%>
+<%--                            <td>2020-10-20</td>--%>
+<%--                        </tr>--%>
 					</tbody>
 				</table>
 			</div>
-			
-			<div style="height: 50px; position: relative;top: 30px;">
-				<div>
-					<button type="button" class="btn btn-default" style="cursor: default;">共<b>50</b>条记录</button>
-				</div>
-				<div class="btn-group" style="position: relative;top: -34px; left: 110px;">
-					<button type="button" class="btn btn-default" style="cursor: default;">显示</button>
-					<div class="btn-group">
-						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-							10
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" role="menu">
-							<li><a href="#">20</a></li>
-							<li><a href="#">30</a></li>
-						</ul>
-					</div>
-					<button type="button" class="btn btn-default" style="cursor: default;">条/页</button>
-				</div>
-				<div style="position: relative;top: -88px; left: 285px;">
-					<nav>
-						<ul class="pagination">
-							<li class="disabled"><a href="#">首页</a></li>
-							<li class="disabled"><a href="#">上一页</a></li>
-							<li class="active"><a href="#">1</a></li>
-							<li><a href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><a href="#">4</a></li>
-							<li><a href="#">5</a></li>
-							<li><a href="#">下一页</a></li>
-							<li class="disabled"><a href="#">末页</a></li>
-						</ul>
-					</nav>
-				</div>
+			<div id="bs_paging1">
 			</div>
+
 			
 		</div>
-		
 	</div>
 </body>
 </html>

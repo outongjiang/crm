@@ -199,4 +199,50 @@
       edit_by = #{editBy,jdbcType=VARCHAR}
     where id = #{id,jdbcType=CHAR}
   </update>
+
+  <select useCache="true" id="selectActivityByConditionForPage" parameterType="map" resultMap="BaseResultMap">
+        select a.id,a.name,u1.name as owner,a.start_date,a.end_date,a.cost,a.description
+        ,a.create_time,u2.name as create_by,u3.name as edit_by
+        from tbl_activity a
+        join tbl_user u1 on u1.id=a.owner
+        join tbl_user u2 on u2.id=a.create_by
+        left join tbl_user u3 on u3.id=a.edit_by
+        <where>
+          <if test="param_name!=null and param_name!=''">
+            and a.name like '%' #{param_name} '%'
+          </if>
+          <if test="param_owner!=null and param_owner!=''">
+            and u1.name like '%' #{param_owner} '%'
+          </if>
+          <if test="param_start_date!=null and param_start_date!=''">
+            and a.start_date&gt;=#{param_start_date}
+          </if>
+          <if test="param_end_date!=null and param_end_date!=''">
+            and a.end_date&lt;= #{param_end_date}
+          </if>
+        </where>
+        order by a.create_time desc
+        limit #{beginNo},#{pageSize}
+  </select>
+  <select useCache="true" id="selectCountOfActivityByCondition" parameterType="map" resultType="int">
+    select count(*)
+    from tbl_activity a
+    join tbl_user u1 on u1.id=a.owner
+    join tbl_user u2 on u2.id=a.create_by
+    left join tbl_user u3 on u3.id=a.edit_by
+    <where>
+      <if test="param_name!=null and param_name!=''">
+        and a.name like '%' #{param_name} '%'
+      </if>
+      <if test="param_owner!=null and param_owner!=''">
+        and u1.name like '%' #{param_owner} '%'
+      </if>
+      <if test="param_start_date!=null and param_start_date!=''">
+        and a.start_date&gt;=#{param_start_date}
+      </if>
+      <if test="param_end_date!=null and param_end_date!=''">
+        and a.end_date&lt;= #{param_end_date}
+      </if>
+    </where>
+  </select>
 </mapper>

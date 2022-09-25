@@ -1,5 +1,3 @@
-package person.otj.crm.commons.utils;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -15,11 +13,13 @@ public class DateUtils {
         String nowStr=simpleDateFormat.format(date);
         return nowStr;
     }
+
     public static void setYear(Date date,int year){
         date.setYear(year-1900);
     }
     public static void setMonth(Date date,int month){
         date.setMonth(month-1);
     }
+
 
 }
