@@ -26,6 +26,63 @@
 	<script type="text/javascript">
 
 	$(function(){
+		//导入
+		$("#importActivityBtn").click(function () {
+			//收集xls文件
+			var activityFilename=$("#activityFile").val();
+			alert(activityFilename)
+			var suffix=activityFilename.substr(activityFilename.lastIndexOf(".")+1).toLocaleLowerCase();
+			var filename=activityFilename.substr(activityFilename.lastIndexOf("/")+1).toLocaleLowerCase();
+			if(suffix!="xls"){
+				alert("只支持xls文件");
+				return;
+			}
+			var activityfile=$("#activityFile")[0].files[0];
+			if(activityfile.size>1024*1024*10){
+				alert("文件超过10M");
+				return;
+			}
+			var formData=new FormData();
+			formData.append("myfile",activityfile);
+			formData.append("filename",filename);
+			$.ajax({
+				url:"workbench/activity/fileUpload.do",
+				processData:false,
+				contentType:false,
+				data:formData,
+				dataType:"json",
+				type:"post",
+				success:function (data) {
+					if(data.code=="1"){
+						alert("成功导入"+data.retData+"记录");
+						$("#importActivityModal").modal("hide")
+						queryActivityByConditionForPage(1,$("#bs_paging1").bs_pagination('getOption','rowsPerPage'));
+					}else{
+						alert(data.message);
+						$("#importActivityModal").modal("show")
+					}
+				}
+			})
+
+		})
+
+
+
+		//选择导出
+		$("#exportActivityXzBtn").click(function () {
+			var idsData ="";
+			$("#tBody input[type='checkbox']:checked").each(function(){
+				idsData+=("ids="+$(this).val()+"&");
+			});
+			idsData=idsData.substr(0,idsData.length-1);
+			document.location.href="workbench/activity/QueryActivityByIds.do?"+idsData;
+		})
+
+		//批量导出
+		$("#exportActivityAllBtn").click(function () {
+			document.location.href="workbench/activity/exportAllActivity.do"
+		})
+
 		//打开创建activity模态窗口
 		$("#createActivityBtn").click(function () {
 		//点击后初始化操作
@@ -44,6 +101,36 @@
 			})
 
 		});
+
+		//删除操作
+
+		$("#deleteBtn").click(function () {
+			if(confirm("确定要删除选中项吗?")) {
+				var idsData ="";
+				$("#tBody input[type='checkbox']:checked").each(function(){
+					alert("value : "+$(this).val())
+					idsData+=("ids="+$(this).val()+"&");
+				});
+				idsData=idsData.substr(0,idsData.length-1);
+				alert(idsData);
+				$.ajax({
+					url:"workbench/activity/deleteActivityByIds.do",
+					data:idsData,
+					dataType:"json",
+					type:"post",
+					success:function (data) {
+						if(data.code=="1"){
+							alert(data.message)
+							queryActivityByConditionForPage(1,$("#bs_paging1").bs_pagination('getOption','rowsPerPage'));
+						}else{
+							alert(data.message)
+						}
+					}
+				})
+			}
+		})
+
+
 		//保存创建activity并且关闭模态窗口
 		$("#saveCreateActivityBtn").click(function () {
 			//点击后初始化操作->收集参数
@@ -121,17 +208,100 @@
 
 
 		});
+
+		//
+
+		/*
+		edit-describe
+		edit-cost
+		edit-endTime
+		edit-startTime
+		edit-marketActivityName
+		*/
+		/*修改市场活动并打开模态窗口，回显数据*/
+		$("#showEditActivityModalBtn").click(function () {
+			if($("#tBody input[type='checkbox']:checked").size()!=1){
+				alert("请选择一个要更新的记录");
+				return;
+			}
+			var id=$("#tBody input[type='checkbox']:checked").val();
+			console.log("id : "+id)
+			$.ajax({
+				url:"workbench/activity/selectActivityById.do",
+				data:{
+					id:id
+				},
+				type:"post",
+				dataType:"json",
+				success:function (data) {
+					$("#editActivityModal").modal("show");
+
+					$("#edit_select").val(data.owner);
+					$("#edit-marketActivityName").val(data.name);
+					$("#edit-startTime").val(data.start_date);
+					$("#edit-endTime").val(data.end_date);
+					$("#edit-cost").val(data.cost);
+					$("#edit-describe").val(data.description);
+				}
+			})
+		})
+		/*
+		 更新市场活动并关闭模态窗口
+
+		 */
+		$("#updateActivityBtn").click(function () {
+			var id=$("#tBody input[type='checkbox']:checked").val();
+			var owner=$("#edit_select").val();
+			var name=$("#edit-marketActivityName").val();
+			var start_date=$("#edit-startTime").val();
+			var end_date=$("#edit-endTime").val();
+			var cost=$("#edit-cost").val();
+			var description=$("#edit-describe").val();
+			$.ajax({
+				url:"workbench/activity/updateActivityById.do",
+				data:{
+					id:id,
+					owner:owner,
+					name:name,
+					startDate:start_date,
+					endDate:end_date,
+					description:description,
+					cost:cost
+				},
+				type:"post",
+				dataType:"json",
+				success:function (data) {
+					if(data.code=="1"){
+						//关闭创建模态窗口
+						$("#editActivityModal").modal("hide");
+						// 创建市场活动后自动刷新bs_pagination
+						queryActivityByConditionForPage($("#bs_paging1").bs_pagination('getOption','currentPage'),$("#bs_paging1").bs_pagination('getOption','rowsPerPage'));
+					}else{
+						alert(data.message)
+						$("#editActivityModal").modal("show");
+					}
+				}
+			})
+
+		})
+
+
 		//当市场活动页面加载完毕时，查询记录
 		queryActivityByConditionForPage(1,5);
+
 		$("#selectBtn").click(function(){
 
 			queryActivityByConditionForPage(1,$("#bs_paging1").bs_pagination('getOption', 'rowsPerPage'));
 
 			//$("#bs_paging1").bs_pagination('getOption', 'rowsPerPage')
 		});
+		$("#checkAll").click(function () {
+			$("#tBody input[type='checkbox']").prop("checked", this.checked);
+		})
 
 
 	});
+
 
 	function queryActivityByConditionForPage(pageNo,pageSize){
 
@@ -173,6 +343,7 @@
 					}
 			});
 				var htmlStr="";
+				//jquery遍历后端返回的集合对象
 				$.each(data.activityList,function (index,obj) {
 					htmlStr+="<tr class='active'>"+
 							"<td><input type='checkbox' value=\""+obj.id+"\"/></td>"+
@@ -184,7 +355,13 @@
 							"</tr>"
 				});
 				$("#tBody").html(htmlStr);
-
+				$("#tBody input[type='checkbox']").click(function () {
+					if($("#tBody input[type='checkbox']").size()==$("#tBody input[type='checkbox']:checked").size()){
+						$("#checkAll").prop("checked",true);
+					}else{
+						$("#checkAll").prop("checked",false);
+					}
+				})
 			}
 		})
 
@@ -273,12 +450,12 @@
 				</div>
 				<div class="modal-body">
 				
-					<form class="form-horizontal" role="form">
+					<form id="updateForm" class="form-horizontal" role="form">
 					
 						<div class="form-group">
 							<label for="edit-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 							<div class="col-sm-10" style="width: 300px;">
-								<select class="form-control" id="edit-marketActivityOwner">
+								<select id="edit_select" class="form-control" id="edit-marketActivityOwner">
 								  <c:forEach items="${requestScope.userList}" var="u">
 									<option value="${u.id}">${u.name}</option>
 								  </c:forEach>
@@ -293,11 +470,11 @@
 						<div class="form-group">
 							<label for="edit-startTime" class="col-sm-2 control-label">开始日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control mydate" id="edit-startTime" value="2020-10-10" readonly>
+								<input type="text" class="form-control mydate" id="edit-startTime" value="2020-10-10" >
 							</div>
 							<label for="edit-endTime" class="col-sm-2 control-label">结束日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control mydate" id="edit-endTime" value="2020-10-20" readonly>
+								<input type="text" class="form-control mydate" id="edit-endTime" value="2020-10-20" >
 							</div>
 						</div>
 						
@@ -320,7 +497,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">更新</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="updateActivityBtn">更新</button>
 				</div>
 			</div>
 		</div>
@@ -348,7 +525,7 @@
                         <ul>
                             <li>操作仅针对Excel，仅支持后缀名为XLS的文件。</li>
                             <li>给定文件的第一行将视为字段名。</li>
-                            <li>请确认您的文件大小不超过5MB。</li>
+                            <li>请确认您的文件大小不超过10MB。</li>
                             <li>日期值以文本形式保存，必须符合yyyy-MM-dd格式。</li>
                             <li>日期时间以文本形式保存，必须符合yyyy-MM-dd HH:mm:ss的格式。</li>
                             <li>默认情况下，字符编码是UTF-8 (统一码)，请确保您导入的文件使用的是正确的字符编码方式。</li>
@@ -413,8 +590,8 @@
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 5px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
 				  <button type="button" class="btn btn-primary" id="createActivityBtn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
-				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" class="btn btn-default" id="showEditActivityModalBtn" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
+				  <button id="deleteBtn" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				<div class="btn-group" style="position: relative; top: 18%;">
                     <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importActivityModal" ><span class="glyphicon glyphicon-import"></span> 上传列表数据（导入）</button>
@@ -426,7 +603,7 @@
 				<table class="table table-hover">
 					<thead>
 						<tr style="color: #B3B3B3;">
-							<td><input type="checkbox" /></td>
+							<td><input type="checkbox" id="checkAll"/></td>
 							<td>名称</td>
                             <td>所有者</td>
 							<td>开始日期</td>

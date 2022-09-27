@@ -62,5 +62,11 @@ public interface ActivitiesMapper {
     */
     int selectCountOfActivityByCondition(Map<String,Object>map);
 
+    int deleteActivityByIds(String ids[]);
 
+    Activities selectActivityById(String id);
+    List<Activities>selectActivityAll();
+    List<Activities>selectActivityByIds(String ids[]);
+
+    int insertActivityList(List<Activities>activities);
 }

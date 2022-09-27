@@ -8,6 +8,7 @@
     </settings>
     <typeAliases>
         <package name="person.otj.crm.settings.model"/>
+        <package name="person.otj.crm.workbench.model"/>
     </typeAliases>
     <mappers>
         <package name="person.otj.crm.settings.mapper"/>

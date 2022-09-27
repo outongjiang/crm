@@ -14,7 +14,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Autowired
     private ActivitiesMapper activitiesMapper;
     public int saveCreateActivity(Activities record) {
-        return activitiesMapper.insertACtivity(record);
+        return activitiesMapper.insertSelective(record);
     }
 
     public List<Activities> querycActivityByConditionForPage(Map<String, Object> map) {
@@ -23,5 +23,29 @@ public class ActivityServiceImpl implements ActivityService {
 
     public int queryCountOfActivityByCondition(Map<String, Object> map) {
         return activitiesMapper.selectCountOfActivityByCondition(map);
+    }
+
+    public int deleteActivityByIds(String[] ids) {
+        return activitiesMapper.deleteActivityByIds(ids);
+    }
+
+    public int updateActivityById(Activities records) {
+        return activitiesMapper.updateByPrimaryKeySelective(records);
+    }
+
+    public Activities queryActivityById(String id) {
+        return activitiesMapper.selectActivityById(id);
+    }
+
+    public List<Activities> QueryActivityAll() {
+        return activitiesMapper.selectActivityAll();
+    }
+
+    public List<Activities> QueryActivityByIds(String[] ids) {
+        return activitiesMapper.selectActivityByIds(ids);
+    }
+
+    public int saveCreateActivityList(List<Activities> activities) {
+        return activitiesMapper.insertActivityList(activities);
     }
 }

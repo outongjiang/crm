@@ -12,8 +12,10 @@ import person.otj.crm.workbench.model.Activities;
 import person.otj.crm.workbench.service.ActivityService;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.*;
 import java.util.Date;
 
 @Controller
@@ -77,4 +79,30 @@ public class TestController {
 
         return "test02";
     }
+
+
+    @RequestMapping("/fileDownLoadTest")
+    public String fileDownLoadTest(){
+
+        return "fileDownLoadTest";
+    }
+
+    @RequestMapping("/test0101")
+    @ResponseBody
+    public String test0101(HttpServletRequest request) throws IOException {
+
+        String realPath = request.getServletContext().getRealPath("/");
+
+        System.out.println(realPath);
+
+        realPath+="ooo.txt";
+
+        File file=new File(realPath);
+
+        BufferedReader reader=new BufferedReader(new FileReader(realPath));
+
+        System.out.println(reader.readLine());
+        return "test0101";
+    }
+
 }

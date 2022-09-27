@@ -225,12 +225,14 @@
       edit_by = #{editBy,jdbcType=VARCHAR}
     where id = #{id,jdbcType=CHAR}
   </update>
-  <select  id="selectUserByLoginActAndPwd" resultMap="BaseResultMap" parameterType="map">
+  <select useCache="true" id="selectUserByLoginActAndPwd" resultMap="BaseResultMap" parameterType="map">
     select <include refid="Base_Column_List"></include>
     from tbl_user
     where login_act=#{loginAct} and login_pwd=#{loginPwd}
   </select>
-  <select id="findAll" useCache="true" resultType="user">
+  <select id="findAll" useCache="true" resultType="user" >
     select * from tbl_user where lock_state='1';
   </select>
+
+
 </mapper>
