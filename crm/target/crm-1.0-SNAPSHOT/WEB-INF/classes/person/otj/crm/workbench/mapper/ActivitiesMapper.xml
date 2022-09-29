@@ -265,11 +265,13 @@
   </resultMap>
 
   <select id="selectActivityById"  resultMap="BaseResultMap" parameterType="string">
-    select
-    <include refid="Base_Column_List"></include>
-     from
-    tbl_activity
-    where id=#{id}
+    select a.id,a.name,u1.name as owner,a.start_date,a.end_date,a.cost,a.description
+    ,a.create_time,u2.name as create_by,u3.name as edit_by
+    from tbl_activity a
+    join tbl_user u1 on u1.id=a.owner
+    join tbl_user u2 on u2.id=a.create_by
+    left join tbl_user u3 on u3.id=a.edit_by
+    where a.id=#{id}
     order by a.create_time desc
   </select>
 

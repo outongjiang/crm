@@ -69,11 +69,18 @@
                              targetProject="E:\大三项目练习\crm-project\crm\src\main\java" type="XMLMAPPER">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
-        <table tableName="tbl_activity" domainObjectName="Activities"
+
+
+        <table tableName="tbl_activity_remark" domainObjectName="ActivitiesRemark"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false">
         </table>
+<!--        <table tableName="tbl_activity" domainObjectName="Activities"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false"-->
+<!--               selectByExampleQueryId="false">-->
+<!--        </table>-->
 <!--        <table tableName="tbl_user" domainObjectName="User"-->
 <!--               enableCountByExample="false" enableUpdateByExample="false"-->
 <!--               enableDeleteByExample="false" enableSelectByExample="false"-->
@@ -149,11 +156,7 @@
 
 
 
-                <table tableName="tbl_marketing_activities_remark" domainObjectName="MarketingActivitiesRemark"
-                       enableCountByExample="false" enableUpdateByExample="false"
-                       enableDeleteByExample="false" enableSelectByExample="false"
-                       selectByExampleQueryId="false">
-                </table>
+
                  -->
 
         <table tableName="tbl_transaction" domainObjectName="Transaction"

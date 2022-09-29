@@ -12,6 +12,8 @@ import person.otj.crm.commons.utils.*;
 import person.otj.crm.settings.model.User;
 import person.otj.crm.settings.service.UserService;
 import person.otj.crm.workbench.model.Activities;
+import person.otj.crm.workbench.model.ActivitiesRemark;
+import person.otj.crm.workbench.service.ActivityRemarkService;
 import person.otj.crm.workbench.service.ActivityService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +30,10 @@ public class ActivityController {
     @Autowired
     private ActivityService activityService;
 
+    @Autowired
+    private ActivityRemarkService activityRemarkService;
+
+
     @RequestMapping("/workbench/activity/index.do")
     public String index(HttpServletRequest request) {
         List<User> users = userService.findAll();
@@ -43,20 +49,19 @@ public class ActivityController {
         activity.setCreateTime(DateUtils.formateDateTime(new Date()));
         activity.setCreateBy(user.getId());
         ReturnObject returnObject=new ReturnObject();
-        CUDExceptionUtils.CUDExceptionHandler(activityService.saveCreateActivity(activity),returnObject);
-//        try {
-//            int i = activityService.saveCreateActivity(activity);
-//            if(i>0){
-//                returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
-//            }else{
-//                returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
-//                returnObject.setMessage("系统繁忙,请稍后重试.......");
-//            }
-//        }catch (Exception e) {
-//            e.printStackTrace();
-//            returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
-//            returnObject.setMessage("系统繁忙,请稍后重试.......");
-//        }
+        try {
+            int i = activityService.saveCreateActivity(activity);
+            if(i>0){
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+            }else{
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+                returnObject.setMessage("系统繁忙,请稍后重试.......");
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+            returnObject.setMessage("系统繁忙,请稍后重试.......");
+        }
         return returnObject;
     }
     @ResponseBody
@@ -85,8 +90,19 @@ public class ActivityController {
     @RequestMapping("/workbench/activity/deleteActivityByIds.do")
     public Object deleteActivityByIds( String ids[]){
         ReturnObject returnObject=new ReturnObject();
-        int i=activityService.deleteActivityByIds(ids);
-        CUDExceptionUtils.CUDExceptionHandler(i,returnObject);
+        try {
+            if(activityService.deleteActivityByIds(ids)>0){
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+                returnObject.setMessage("执行成功!");
+            }else{
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+                returnObject.setMessage("系统繁忙,请稍后重试.......");
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+            returnObject.setMessage("系统繁忙,请稍后重试.......");
+        }
         return returnObject;
     }
 
@@ -96,7 +112,19 @@ public class ActivityController {
     public Object updateActivityById(Activities records){
         System.out.println(records);
         ReturnObject returnObject=new ReturnObject();
-        CUDExceptionUtils.CUDExceptionHandler(activityService.updateActivityById(records),returnObject);
+        try {
+            if(activityService.updateActivityById(records)>0){
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+                returnObject.setMessage("执行成功!");
+            }else{
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+                returnObject.setMessage("系统繁忙,请稍后重试.......");
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+            returnObject.setMessage("系统繁忙,请稍后重试.......");
+        }
         return returnObject;
     }
     @ResponseBody
@@ -257,8 +285,119 @@ public class ActivityController {
                 System.out.println(activity);
                 activities.add(activity);
             }
-                CUDExceptionUtils.CUDExceptionHandler(activityService.saveCreateActivityList(activities),returnObject);
+        try {
+            if(activityService.saveCreateActivityList(activities)>0){
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+                returnObject.setMessage("执行成功!");
+            }else{
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+                returnObject.setMessage("系统繁忙,请稍后重试.......");
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+            returnObject.setMessage("系统繁忙,请稍后重试.......");
+        }
                 return returnObject;
     }
 
+
+
+    @RequestMapping("/workbench/activity/activityDetail.do")
+    public String  activityDetail(HttpServletRequest request,String id){
+        Activities activity = activityService.queryActivityById(id);
+        List<ActivitiesRemark> activitiesRemarksList = activityRemarkService.queryActivityRemarkForDetailByActivityId(id);
+        request.setAttribute("activity",activity);
+        request.setAttribute("activitiesRemarksList",activitiesRemarksList);
+        System.out.println(activitiesRemarksList);
+        System.out.println(activity);
+        return "workbench/activity/detail";
+    }
+
+
+    @ResponseBody
+    @RequestMapping("/workbench/activity/saveCreateActivityRemark.do")
+    public Object saveCreateActivityRemark(HttpSession session,ActivitiesRemark remark){
+        ReturnObject returnObject=new ReturnObject();
+        remark.setId(UUIDUtils.getUUID());
+        User u=(User)session.getAttribute(Contants.SESSION_USER);
+        remark.setCreateBy(u.getId());
+        remark.setCreateTime(DateUtils.formateDateTime(new Date()));
+        remark.setEditFlag(Contants.REMARK_EDIT_FLAG_NO);
+        try {
+            if(activityRemarkService.saveCreateActivityRemark(remark)>0){
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+                returnObject.setMessage("执行成功!");
+            }else{
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+                returnObject.setMessage("系统繁忙,请稍后重试.......");
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+            returnObject.setMessage("系统繁忙,请稍后重试.......");
+        }
+        Map<String,Object>retData=new HashMap<String, Object>();
+        retData.put("noteContent",remark.getNoteContent());
+        retData.put("id",remark.getId());
+        retData.put("createTime",remark.getCreateTime());
+        returnObject.setRetData(retData);
+        return returnObject;
+    }
+
+
+    @ResponseBody
+    @RequestMapping("/workbench/activity/deleteActivityRemarkById.do")
+    public Object deleteActivityRemarkById(String id){
+        ReturnObject returnObject=new ReturnObject();
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxx"+id);
+        try{
+            int i = activityRemarkService.deleteActivityRemarkById(id);
+            if(i>0){
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+
+            }else {
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+                returnObject.setMessage("系统繁忙,请稍后重试.......");
+            }
+        }catch (Exception e){
+            returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+            returnObject.setMessage("系统繁忙,请稍后重试.......");
+            e.printStackTrace();
+        }
+
+        return returnObject;
+    }
+
+
+
+
+    @ResponseBody
+    @RequestMapping("/workbench/activity/saveEditActivityRemark.do")
+    public Object saveEditActivityRemark(ActivitiesRemark remark){
+        ReturnObject returnObject=new ReturnObject();
+        remark.setEditFlag(Contants.REMARK_EDIT_FLAG_YES);
+        remark.setEditTime(DateUtils.formateDateTime(new Date()));
+        try{
+            int i = activityRemarkService.saveEditActivityRemark(remark);
+            if(i>0){
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+
+            }else {
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+                returnObject.setMessage("系统繁忙,请稍后重试.......");
+            }
+        }catch (Exception e){
+            returnObject.setCode(Contants.RETURN_OBJECT_CODE_FILE);
+            returnObject.setMessage("系统繁忙,请稍后重试.......");
+            e.printStackTrace();
+        }
+        Map<String,Object>map=new HashMap<String, Object>();
+        map.put("editTime",remark.getEditTime());
+        map.put("noteContent",remark.getNoteContent());
+        map.put("id",remark.getId());
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxx"+remark);
+        returnObject.setRetData(map);
+        return returnObject;
+    }
 }
