@@ -286,6 +286,7 @@
   </select>
 
 
+
   <select resultMap="BaseResultMap"  id="selectActivityByIds" parameterType="string">
     select a.id,a.name,u1.name as owner,a.start_date,a.end_date,a.cost,a.description
     ,a.create_time,u2.name as create_sby,u3.name as edit_by
@@ -309,4 +310,81 @@
       #{activity.createTime,jdbcType=CHAR}, #{activity.createBy,jdbcType=VARCHAR})
     </foreach>
   </insert>
+
+  <select id="selectActivityForDetailByClueId" flushCache="true" parameterType="string" resultMap="BaseResultMap">
+    select
+     a.id,u1.name as owner, a.name, a.start_date, a.end_date
+    from tbl_activity a
+    join tbl_user u1  on u1.id=a.owner
+    join tbl_clue_activity_relation car
+    on car.activity_id=a.id
+    where car.clue_id=#{clueId}
+  </select>
+  <select useCache="false" id="selectActivityForDetailByNameClueId" parameterType="map" resultMap="BaseResultMap">
+    select act.id,act.name,act.start_date,act.end_date,u1.name as owner
+    from tbl_activity act
+    join tbl_user u1 on u1.id=act.owner
+    <where>
+      <if test="name!=null and name!=''">
+        and act.name like '%' #{name} '%'
+      </if>
+    and
+    act.id not in (
+        select activity_id
+        from tbl_clue_activity_relation car
+        where car.clue_id=#{clueId}
+    )
+    </where>
+  </select>
+
+  <select id="selectActivityForDetailByIds" parameterType="string" resultMap="BaseResultMap" >
+    select a.id,a.name,a.start_date,a.end_date,u.name as owner
+    from tbl_activity a
+    join tbl_user u on u.id=a.owner
+    where a.id in
+    <foreach collection="array" index="index" item="ids" open="(" separator="," close=")">
+      #{ids}
+    </foreach>
+  </select>
+
+
+  <select id="selectActivityForConvertByNameClueId" parameterType="map" resultMap="BaseResultMap">
+    select a.id,u1.name as owner,a.name,a.start_date,a.end_date
+    from tbl_activity a
+    join tbl_user u1 on u1.id=a.owner
+    join tbl_clue_activity_relation car on car.activity_id=a.id
+    where a.name like '%' #{activityName} '%' and car.clue_id=#{clueId}
+  </select>
+
+<select id="selectActivityForCustomerDetailByName" parameterType="string" resultMap="BaseResultMap">
+  select a.id,u1.name as owner,a.name,a.start_date,a.end_date
+    from tbl_activity a
+    join tbl_user u1 on u1.id=a.owner where a.name like '%' #{activityName} '%'
+
+
+</select>
+
+
+  <select id="selectActivityListForContactDetailByContactId" resultMap="BaseResultMap" parameterType="string">
+    select act.id,act.name,act.start_date,act.end_date,u1.name as owner
+    from tbl_activity act
+    left join tbl_user u1 on u1.id=act.owner
+     join tbl_contacts_activity_relation car on car.contacts_id=#{id} and car.activity_id=act.id
+  </select>
+  <select id="selectActivityForDetailByNameContactId" parameterType="map" resultMap="BaseResultMap">
+    select act.id,act.name,act.start_date,act.end_date,u1.name as owner
+    from tbl_activity act
+    join tbl_user u1 on u1.id=act.owner
+    <where>
+      <if test="name!=null and name!=''">
+        and act.name like '%' #{name} '%'
+      </if>
+      and
+      act.id not in (
+      select car.activity_id
+      from tbl_contacts_activity_relation car
+      where car.contacts_id=#{contactId}
+      )
+    </where>
+ </select>
 </mapper>

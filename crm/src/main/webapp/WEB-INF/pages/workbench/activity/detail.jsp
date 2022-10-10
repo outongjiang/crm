@@ -61,7 +61,7 @@ String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.ge
 			})
 		})
 
-		//显示更新模态窗口，回显数据
+		//显示更新市场活动备注模态窗口，回显数据
 		$("#RemarkdivList").on("click","a[name='editA']",function () {
 			alert("进入更新模态窗口")
 			//收集数据
@@ -110,8 +110,10 @@ String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.ge
 		//删除activityRemark
 
 		$("#RemarkdivList").on("click","a[name='deleteA']",function () {
+			if(!confirm("确定要删除?")){
+				return false;
+			}
 			//收集参数
-			alert("进入删除")
 			var id=$(this).attr("remarkId");
 			$.ajax({
 				url:"workbench/activity/deleteActivityRemarkById.do",

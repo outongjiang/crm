@@ -48,4 +48,35 @@ public class ActivityServiceImpl implements ActivityService {
     public int saveCreateActivityList(List<Activities> activities) {
         return activitiesMapper.insertActivityList(activities);
     }
+
+    public List<Activities> queryActivityForDetailByClueId(String clueId) {
+        return activitiesMapper.selectActivityForDetailByClueId(clueId);
+    }
+
+    public List<Activities> queryActivityForDetailByNameClueId(Map<String, Object> map) {
+        return activitiesMapper.selectActivityForDetailByNameClueId(map);
+    }
+
+    public List<Activities> queryActivityForDetailByIds(String[] ids) {
+        return activitiesMapper.selectActivityForDetailByIds(ids);
+    }
+
+    public List<Activities> queryActivityForConvertByNameClueId(Map<String, Object> map) {
+        return activitiesMapper.selectActivityForConvertByNameClueId(map);
+    }
+
+    @Override
+    public List<Activities> queryActivityForCustomerDetailByName(String activityName) {
+        return activitiesMapper.selectActivityForCustomerDetailByName(activityName);
+    }
+
+    @Override
+    public List<Activities> queryActivityForContactsDetailByContactId(String contactId) {
+        return activitiesMapper.selectActivityListForContactDetailByContactId(contactId);
+    }
+
+    @Override
+    public List<Activities> queryActivityForDetailByNameContactId(Map<String, Object> map) {
+        return activitiesMapper.selectActivityForDetailByNameContactId(map);
+    }
 }

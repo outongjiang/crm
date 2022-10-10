@@ -15,4 +15,14 @@ public interface ActivityService {
     List<Activities>QueryActivityAll();
     List<Activities>QueryActivityByIds(String ids[]);
     int saveCreateActivityList(List<Activities> activities);
+    List<Activities>queryActivityForDetailByClueId(String clueId);
+    List<Activities>queryActivityForDetailByNameClueId(Map<String,Object>map);
+    List<Activities>queryActivityForDetailByIds(String ids[]);
+    List<Activities>queryActivityForConvertByNameClueId(Map<String,Object>map);
+
+    List<Activities> queryActivityForCustomerDetailByName(String activityName);
+
+    List<Activities> queryActivityForContactsDetailByContactId(String contactId);
+
+    List<Activities> queryActivityForDetailByNameContactId(Map<String, Object> map);
 }

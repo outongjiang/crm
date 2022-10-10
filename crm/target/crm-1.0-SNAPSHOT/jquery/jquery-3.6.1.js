@@ -10885,7 +10885,7 @@ var
 
 jQuery.noConflict = function( deep ) {
 	if ( window.$ === jQuery ) {
-		window.$ = _$;
+		relationedTBodywindow.$ = _$;
 	}
 
 	if ( deep && window.jQuery === jQuery ) {

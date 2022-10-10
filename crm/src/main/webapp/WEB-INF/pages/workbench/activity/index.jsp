@@ -330,14 +330,14 @@
 					totalPages=parseInt(data.totalRows/pageSize)+1;
 				}
 				$("#bs_paging1").bs_pagination({
-					currentPage:pageNo,
-					rowsPerPage:pageSize,
-					totalRows:data.totalRows,
-					visiblePageLinks: 3,
-					totalPages:totalPages,
-					showGoToPage:true,
-				showRowsPerPage:true,
-				showRowsInfo:true,
+						currentPage:pageNo,
+						rowsPerPage:pageSize,
+						totalRows:data.totalRows,
+						visiblePageLinks: 3,
+						totalPages:totalPages,
+						showGoToPage:true,
+					showRowsPerPage:true,
+					showRowsInfo:true,
 					onChangePage:function(event,pageObj){
 						queryActivityByConditionForPage(pageObj.currentPage,pageObj.rowsPerPage);
 					}
@@ -627,8 +627,8 @@
 <%--                        </tr>--%>
 					</tbody>
 				</table>
+				<div id="bs_paging1">
 			</div>
-			<div id="bs_paging1">
 			</div>
 
 			

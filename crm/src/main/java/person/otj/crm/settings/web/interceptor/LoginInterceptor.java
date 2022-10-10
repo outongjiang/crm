@@ -12,6 +12,8 @@ import javax.servlet.http.HttpSession;
 public class LoginInterceptor implements HandlerInterceptor {
 
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
+        System.out.println("xxxxxxxxxxxxxxxxx          url=>"+httpServletRequest.getRequestURL());
+        
         //如果用户没有登录,跳转登录页面
         HttpSession session = httpServletRequest.getSession();
          User user= (User) session.getAttribute(Contants.SESSION_USER);

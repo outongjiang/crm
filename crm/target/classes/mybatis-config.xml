@@ -9,8 +9,10 @@
     <typeAliases>
         <package name="person.otj.crm.settings.model"/>
         <package name="person.otj.crm.workbench.model"/>
+        <package name="person.otj.crm.commons.domain"/>
     </typeAliases>
     <mappers>
         <package name="person.otj.crm.settings.mapper"/>
+        <package name="person.otj.crm.workbench.mapper"/>
     </mappers>
 </configuration>

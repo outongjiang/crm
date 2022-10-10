@@ -70,12 +70,21 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-
-        <table tableName="tbl_activity_remark" domainObjectName="ActivitiesRemark"
+        <table tableName="tbl_clue_remark" domainObjectName="ClueRemark"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false">
         </table>
+<!--        <table tableName="tbl_dic_value" domainObjectName="DictionaryValue"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false"-->
+<!--               selectByExampleQueryId="false">-->
+<!--        </table>-->
+<!--        <table tableName="tbl_activity_remark" domainObjectName="ActivitiesRemark"-->
+<!--               enableCountByExample="false" enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false"-->
+<!--               selectByExampleQueryId="false">-->
+<!--        </table>-->
 <!--        <table tableName="tbl_activity" domainObjectName="Activities"-->
 <!--               enableCountByExample="false" enableUpdateByExample="false"-->
 <!--               enableDeleteByExample="false" enableSelectByExample="false"-->
